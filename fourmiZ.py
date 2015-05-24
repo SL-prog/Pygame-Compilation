@@ -12,6 +12,7 @@ RHAAA = pygame.mixer.Sound("cris.wav")
 BLOOD = pygame.image.load('blood.png').convert_alpha()
 FINGER = pygame.image.load("finger.png").convert_alpha()
 FOOT = pygame.image.load("foot.png").convert_alpha()
+ANT = pygame.image.load("ant.png").convert_alpha()
 
 class Ant:
     def __init__(self, x, y, screenx, screeny, num):
@@ -27,7 +28,7 @@ class Ant:
         self.attendre = True
         self.bouger = False
 
-        self.imageant = pygame.image.load("ant.png").convert_alpha()
+        self.imageant = ANT
         self.angle = randint(0,360)
         self.anglerad = self.angle*(pi/180)
         self.vx = -cos(-self.anglerad)*5
@@ -112,7 +113,7 @@ class Ant:
             fenetre.blit(self.imageant, (self.x, self.y)) #ant
 
     def rotation(self):
-        self.imageant = pygame.image.load("ant.png").convert_alpha()
+        self.imageant = ANT
         origine_rectangle = self.imageant.get_rect()
         rotation_image = pygame.transform.rotate(self.imageant, self.angle)
         rotation_rectangle = origine_rectangle.copy()
