@@ -125,7 +125,7 @@ jeu = True
 ants = []
 deads = []
 
-
+pygame.mouse.set_visible(False)
 while jeu:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -163,7 +163,7 @@ while jeu:
     fenetre.blit(FINGER, (x-250, y-72))
 
     pygame.display.flip()
-    pygame.time.Clock().tick(30)
+    pygame.time.Clock().tick(60)
 
 print(len(deads))
 print(len(ants))
