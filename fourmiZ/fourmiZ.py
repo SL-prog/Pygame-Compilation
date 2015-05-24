@@ -181,7 +181,7 @@ class FoodGenerator:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.pv = 10
+        self.pv = 4
         self.etat = 0
     def affiche(self, fenetre):
         fenetre.blit(FOOD[self.etat], (self.x, self.y))
