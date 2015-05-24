@@ -17,7 +17,7 @@ from random import randint
 from math import *
 from time import sleep
 
-fenetre = pygame.display.set_mode((0,0))
+fenetre = pygame.display.set_mode((0,0), FULLSCREEN)
 
 CRUSH = pygame.mixer.Sound("crush.wav")
 RHAAA = pygame.mixer.Sound("cris.wav")
