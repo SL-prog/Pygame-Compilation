@@ -3,6 +3,7 @@ from pygame.locals import *
 pygame.init()
 from random import randint
 from math import pi, cos, sin
+from time import sleep
 
 fenetre = pygame.display.set_mode((0,0),FULLSCREEN)
 
@@ -10,6 +11,7 @@ crush = pygame.mixer.Sound("crush.wav")
 RHAAA = pygame.mixer.Sound("cris.wav")
 BLOOD = pygame.image.load('blood.png').convert_alpha()
 FINGER = pygame.image.load("finger.png").convert_alpha()
+FOOT = pygame.image.load("foot.png").convert_alpha()
 
 class Ant:
     def __init__(self, x, y, screenx, screeny, num):
@@ -124,6 +126,7 @@ pygame.display.set_caption("Fourmiz")
 jeu = True
 ants = []
 deads = []
+kill_all = False 
 
 pygame.mouse.set_visible(False)
 while jeu:
@@ -135,7 +138,9 @@ while jeu:
                 jeu = False
             if event.key == K_r:
                 ants = []
-        # if event.type == MOUSEMOTION:
+        if event.type == MOUSEBUTTONDOWN and event.button == 2:
+            kill_all = True
+            RHAAA.play()
         if event.type == MOUSEBUTTONDOWN and event.button == 3:
             (x, y) = pygame.mouse.get_pos()
             for a in ants:
@@ -152,18 +157,32 @@ while jeu:
 
     pygame.draw.rect(fenetre, (255,255,255), (0,0,fenetre.get_width(),fenetre.get_height()), 0) #fond
 
-    
+    if kill_all:
+        for i in ants:
+            i.killed = True
+            deads.append(i)
+        ants = []
+
     for i in deads:
         i.affiche(fenetre)
 
     for a in ants:
         a.mouvement()
         a.affiche(fenetre)
-    x,y = pygame.mouse.get_pos()
-    fenetre.blit(FINGER, (x-250, y-72))
+
+    if not kill_all:
+        x,y = pygame.mouse.get_pos()
+        fenetre.blit(FINGER, (x-250, y-72))
+    else:
+        fenetre.blit(FOOT, (350,0))
+
+
 
     pygame.display.flip()
-    pygame.time.Clock().tick(60)
+    pygame.time.Clock().tick(30)
+    if kill_all:
+        kill_all = False
+        sleep(1)
 
 print(len(deads))
 print(len(ants))
