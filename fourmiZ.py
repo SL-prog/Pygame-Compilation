@@ -3,9 +3,15 @@ from pygame.locals import *
 pygame.init()
 from random import randint
 from math import pi, cos, sin
+from time import sleep
+
+fenetre = pygame.display.set_mode((0,0),FULLSCREEN)
+
+
+BLOOD = pygame.image.load('blood.png').convert_alpha()
 
 class Ant:
-    def __init__(self, x, y, screenx, screeny):
+    def __init__(self, x, y, screenx, screeny, num):
         self.x = x
         self.y = y
         self.screenx = screenx
@@ -26,9 +32,14 @@ class Ant:
         self.imageantangle = self.imageant
         self.q = 1
         self.changer = 0
+        self.num = num
+        self.killed = False
 
 
     def mouvement(self):
+        if self.killed:
+            return
+
         self.anglerad = self.angle*(pi/180)
         self.vx = -cos(-self.anglerad)*5
         self.vy = -sin(-self.anglerad)*5
@@ -91,8 +102,12 @@ class Ant:
 
 
     def affiche(self, fenetre):
-        self.rotation()
-        fenetre.blit(self.imageant, (self.x, self.y)) #ant
+        # self.rotation()
+        if self.killed:
+            fenetre.blit(BLOOD, (self.x, self.y))
+        else:
+            self.rotation()
+            fenetre.blit(self.imageant, (self.x, self.y)) #ant
 
     def rotation(self):
         self.imageant = pygame.image.load("ant.png").convert_alpha()
@@ -103,13 +118,12 @@ class Ant:
         self.imageant = rotation_image.subsurface(rotation_rectangle).copy()
 
 
-fenetre = pygame.display.set_mode((0,0),FULLSCREEN)
 
 pygame.display.set_caption("Fourmiz")
 
 jeu = True
-numero = 0
 ants = []
+deads = []
 
 
 while jeu:
@@ -119,24 +133,36 @@ while jeu:
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 jeu = False
-        if event.type == MOUSEBUTTONDOWN and event.button == 1:
+            if event.key == K_r:
+                ants = []
+        if event.type == MOUSEBUTTONDOWN and event.button == 3:
             (x, y) = pygame.mouse.get_pos()
-            ants = ants + [Ant(x,y, fenetre.get_width(),fenetre.get_height())]
-            numero = numero + 1
-        elif event.type == MOUSEBUTTONDOWN and event.button == 3:
-            ants = []
-            numero = 0
+            for a in ants:
+                if x > a.x and x < a.x + 50 and y > a.y and y < a.y+50:
+                    a.killed = True
+                    ants.pop(a.num)
+                    deads.append(a)
+                    for i in ants[a.num:]:
+                        i.num -= 1
+        elif event.type == MOUSEBUTTONDOWN and event.button == 1:
+            (x, y) = pygame.mouse.get_pos()
+            ants = ants + [Ant(x,y, fenetre.get_width(),fenetre.get_height(), len(ants))]
 
     pygame.draw.rect(fenetre, (255,255,255), (0,0,fenetre.get_width(),fenetre.get_height()), 0) #fond
 
-    for rang in range(numero):
-        ants[rang].mouvement()
-        ants[rang].affiche(fenetre)
+    for i in deads:
+        i.affiche(fenetre)
 
+    for a in ants:
+        a.mouvement()
+        a.affiche(fenetre)
 
 
     pygame.display.flip()
     pygame.time.Clock().tick(30)
+
+print(len(deads))
+print(len(ants))
 
 pygame.quit()
 
