@@ -137,11 +137,15 @@ while jeu:
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 jeu = False
-            if event.key == K_r:
+            if event.key == K_t:
                 ants = []
-            if event.key == K_a:
-                nb_add = 10
+            if event.key == K_r:
+                nb_add = 1000
+            if event.key == K_e:
+                nb_add = 100
             if event.key == K_z:
+                nb_add = 10
+            if event.key == K_a:
                 nb_add = 1
         if event.type == MOUSEBUTTONDOWN and event.button == 2:
             kill_all = True
