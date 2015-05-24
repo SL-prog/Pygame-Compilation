@@ -129,8 +129,12 @@ ants = []
 deads = []
 kill_all = False 
 nb_add = 1
-
 pygame.mouse.set_visible(False)
+
+bg = pygame.Surface((fenetre.get_width(),fenetre.get_height()))
+pygame.draw.rect(bg, (255,255,255), (0,0,bg.get_width(),bg.get_height()), 0)
+
+
 while jeu:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -140,6 +144,7 @@ while jeu:
                 jeu = False
             if event.key == K_t:
                 ants = []
+                pygame.draw.rect(bg, (255,255,255), (0,0,bg.get_width(),bg.get_height()), 0)
             if event.key == K_r:
                 nb_add = 1000
             if event.key == K_e:
@@ -166,7 +171,7 @@ while jeu:
             for i in range(nb_add):
                 ants.append(Ant(x,y, fenetre.get_width(),fenetre.get_height(), len(ants)))
 
-    pygame.draw.rect(fenetre, (255,255,255), (0,0,fenetre.get_width(),fenetre.get_height()), 0) #fond
+    # pygame.draw.rect(fenetre, (255,255,255), (0,0,fenetre.get_width(),fenetre.get_height()), 0) #fond
 
     if kill_all:
         for i in ants:
@@ -175,7 +180,9 @@ while jeu:
         ants = []
 
     for i in deads:
-        i.affiche(fenetre)
+        i.affiche(bg)
+    deads = []
+    fenetre.blit(bg, (0,0))
 
     for a in ants:
         a.mouvement()
@@ -188,13 +195,11 @@ while jeu:
         fenetre.blit(FOOT, (350,0))
 
 
-
     pygame.display.flip()
-    pygame.time.Clock().tick(30)
+    pygame.time.Clock().tick(20)
     if kill_all:
         kill_all = False
         sleep(1)
-
 print(len(deads))
 print(len(ants))
 
