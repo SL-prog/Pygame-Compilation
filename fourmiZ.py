@@ -127,6 +127,7 @@ jeu = True
 ants = []
 deads = []
 kill_all = False 
+nb_add = 1
 
 pygame.mouse.set_visible(False)
 while jeu:
@@ -136,8 +137,16 @@ while jeu:
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 jeu = False
-            if event.key == K_r:
+            if event.key == K_t:
                 ants = []
+            if event.key == K_r:
+                nb_add = 1000
+            if event.key == K_e:
+                nb_add = 100
+            if event.key == K_z:
+                nb_add = 10
+            if event.key == K_a:
+                nb_add = 1
         if event.type == MOUSEBUTTONDOWN and event.button == 2:
             kill_all = True
             RHAAA.play()
@@ -153,7 +162,8 @@ while jeu:
                         i.num -= 1
         elif event.type == MOUSEBUTTONDOWN and event.button == 1:
             (x, y) = pygame.mouse.get_pos()
-            ants = ants + [Ant(x,y, fenetre.get_width(),fenetre.get_height(), len(ants))]
+            for i in range(nb_add):
+                ants.append(Ant(x,y, fenetre.get_width(),fenetre.get_height(), len(ants)))
 
     pygame.draw.rect(fenetre, (255,255,255), (0,0,fenetre.get_width(),fenetre.get_height()), 0) #fond
 
