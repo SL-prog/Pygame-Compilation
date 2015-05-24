@@ -3,7 +3,6 @@ from pygame.locals import *
 pygame.init()
 from random import randint
 from math import pi, cos, sin
-from time import sleep
 
 fenetre = pygame.display.set_mode((0,0),FULLSCREEN)
 
