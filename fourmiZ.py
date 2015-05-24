@@ -3,11 +3,10 @@ from pygame.locals import *
 pygame.init()
 from random import randint
 from math import pi, cos, sin
-from time import sleep
 
 fenetre = pygame.display.set_mode((0,0),FULLSCREEN)
 
-
+crush = pygame.mixer.Sound("crush.wav")
 BLOOD = pygame.image.load('blood.png').convert_alpha()
 
 class Ant:
@@ -102,9 +101,8 @@ class Ant:
 
 
     def affiche(self, fenetre):
-        # self.rotation()
         if self.killed:
-            fenetre.blit(BLOOD, (self.x, self.y))
+            fenetre.blit(BLOOD, (self.x-15, self.y-15))
         else:
             self.rotation()
             fenetre.blit(self.imageant, (self.x, self.y)) #ant
@@ -140,6 +138,7 @@ while jeu:
             for a in ants:
                 if x > a.x and x < a.x + 50 and y > a.y and y < a.y+50:
                     a.killed = True
+                    crush.play()
                     ants.pop(a.num)
                     deads.append(a)
                     for i in ants[a.num:]:
