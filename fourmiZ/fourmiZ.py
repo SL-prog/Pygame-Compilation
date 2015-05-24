@@ -129,7 +129,6 @@ ants = []
 deads = []
 kill_all = False 
 nb_add = 1
-timer = 30
 pygame.mouse.set_visible(False)
 
 bg = pygame.Surface((fenetre.get_width(),fenetre.get_height()))
@@ -195,14 +194,12 @@ while jeu:
     else:
         fenetre.blit(FOOT, (350,0))
 
-    timer = int(1/(len(ants)+len(deads)+1)*300)
 
     pygame.display.flip()
-    pygame.time.Clock().tick(timer)
+    pygame.time.Clock().tick(20)
     if kill_all:
         kill_all = False
         sleep(1)
-print(timer)
 print(len(deads))
 print(len(ants))
 
