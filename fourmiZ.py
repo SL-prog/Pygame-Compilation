@@ -140,10 +140,10 @@ while jeu:
             for a in ants:
                 if x > a.x and x < a.x + 50 and y > a.y and y < a.y+50:
                     a.killed = True
+                    ants.pop(a.num)
                     deads.append(a)
                     for i in ants[a.num:]:
                         i.num -= 1
-                    ants.pop(a.num)
         elif event.type == MOUSEBUTTONDOWN and event.button == 1:
             (x, y) = pygame.mouse.get_pos()
             ants = ants + [Ant(x,y, fenetre.get_width(),fenetre.get_height(), len(ants))]
@@ -162,6 +162,7 @@ while jeu:
     pygame.time.Clock().tick(30)
 
 print(len(deads))
+print(len(ants))
 
 pygame.quit()
 
