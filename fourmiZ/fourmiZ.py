@@ -158,7 +158,7 @@ class Ant:
                     self.angle = 90
                 if self.y>self.screeny-50:
                     self.y = self.screeny-50
-                # self.angle = 270
+                    self.angle = 270
 
         if not self.food:
             there_is_food = False
