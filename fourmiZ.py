@@ -7,7 +7,9 @@ from math import pi, cos, sin
 fenetre = pygame.display.set_mode((0,0),FULLSCREEN)
 
 crush = pygame.mixer.Sound("crush.wav")
+RHAAA = pygame.mixer.Sound("cris.wav")
 BLOOD = pygame.image.load('blood.png').convert_alpha()
+FINGER = pygame.image.load("finger.png").convert_alpha()
 
 class Ant:
     def __init__(self, x, y, screenx, screeny, num):
@@ -133,6 +135,7 @@ while jeu:
                 jeu = False
             if event.key == K_r:
                 ants = []
+        # if event.type == MOUSEMOTION:
         if event.type == MOUSEBUTTONDOWN and event.button == 3:
             (x, y) = pygame.mouse.get_pos()
             for a in ants:
@@ -149,13 +152,15 @@ while jeu:
 
     pygame.draw.rect(fenetre, (255,255,255), (0,0,fenetre.get_width(),fenetre.get_height()), 0) #fond
 
+    
     for i in deads:
         i.affiche(fenetre)
 
     for a in ants:
         a.mouvement()
         a.affiche(fenetre)
-
+    x,y = pygame.mouse.get_pos()
+    fenetre.blit(FINGER, (x-250, y-72))
 
     pygame.display.flip()
     pygame.time.Clock().tick(30)
