@@ -1,16 +1,4 @@
-﻿#Projet : on place autant de fourmis qu'on veut. de meme pour la nourriture
-#les fourmis se deplacent de manière aléatoire
-#si une fourmis touche de la nourriture, cette derniere se porte jusqu'a sa bouche
-#si on a place la reine des fourmis sur l'ecran, la fourmis qui vient de recuperer
-#la nourriture fait un tour complet jusqu'a etre dans l'axe de la reine
-#et elle se dirige vers la reine pour lui porter la nourriture
-#si la nourriture arrive sur la reine, la nourriture disparait et une fourmis apparait
-#devant la reine
-
-#pour plus tard : on ne peut poser que des larves, qui vont evoluer en fourmis qu'au bout
-#d'un certain temps. La reine pourra pondre des larves.
-
-import pygame
+﻿import pygame
 from pygame.locals import *
 pygame.init()
 from random import randint
@@ -117,7 +105,7 @@ class Ant:
             self.angle = -s*acos(c) / 2 / pi * 360
             if self.x > self.queen.x-5 and self.x < self.queen.x + 80 and self.y > self.queen.y-5 and self.y < self.queen.y + 80:
                 self.food = None
-                self.queen.create_ant()
+                self.queen.create_larva()
         elif self.last_food:
             x_a = self.x - self.last_food[0]
             y_a = self.y - self.last_food[1]
@@ -174,7 +162,6 @@ class Ant:
                     self.last_food = None
 
 
-
     def affiche(self, fenetre):
         if self.killed:
             fenetre.blit(BLOOD, (self.x-15, self.y-15))
@@ -207,8 +194,7 @@ class FoodGenerator:
             self.etat += 1
         return Food(self.x, self.y)
 
-
-class Food:
+class Food: # a quoi ca sert ??
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -217,15 +203,43 @@ class Food:
     def affiche(self, fenetre):
         fenetre.blit(FOOD[0], (self.x, self.y))
 
-class Queen(Ant):
-    def __init__(self, ants):
+class Larva(Ant):
+    def __init__(self, num):
+        self.x = Queen.x + 5
+        self.y = Queen.y + 5
+        self.eclose = False
+        self.time_eclose = pygame.time.get_ticks + 10000
+        self.q = True
+        self.changer = 0
+        self.num = num
+    def mouvement(self):
+        if self.eclose:
+            return
+        if self.q and pygame.time.get_ticks()>self.changer:
+            self.angle += randint(0,20)
+            self.changer = pygame.time.get_ticks() + 1000
+            self.q = False
+        if not(self.q) and pygame.time.get_ticks()>self.changer:
+            self.angle -= randint(0,20)
+            self.q = True
+            self.changer = pygame.time.get_ticks() + 1000
+    def eclosion(self):
+        if pygame.time.get_ticks > self.time_eclose:
+            ants.append(Ant(self.x,self.y, fenetre.get_width(),fenetre.get_height(), len(self.ants), self, food_generators))
+            larva.pop(num)
+            self.eclose = True
+    def affiche(self, fenetre):
+        fenetre.blit(LARVA, (self.x, self.y))
+
+class Queen(Larva):
+    def __init__(self, larva):
         self.x, self.y = (randint(75,fenetre.get_width())-75), (randint(75,(fenetre.get_height())-75))
         self.angle = randint(0,360)
         self.imagequeen = QUEENANT
         self.killed = False
         self.changer = 0
         self.q = True
-        self.ants = ants
+        self.larva = larva
 
     def mouvement(self):
         if self.killed:
@@ -254,15 +268,8 @@ class Queen(Ant):
         rotation_rectangle.center = rotation_image.get_rect().center
         self.imagequeen = rotation_image.subsurface(rotation_rectangle).copy()
 
-    def create_ant(self):
-        ants.append(Ant(self.x,self.y, fenetre.get_width(),fenetre.get_height(), len(self.ants), self, food_generators))
-
-class Larva:
-    def __init__():
-        pass
-    def eclosion():
-        pass
-
+    def create_larva(self):
+        larva.append(Larva(len(self.larva)))
 
 
 pygame.display.set_caption("Fourmiz")
@@ -272,7 +279,7 @@ ants = []
 deads = []
 food_generators = []
 larva = []
-queenant = Queen(ants)
+queenant = Queen(larva)
 
 kill_all = False
 nb_add = 1
@@ -379,5 +386,3 @@ print(len(deads))
 print(len(ants))
 
 pygame.quit()
-
-
