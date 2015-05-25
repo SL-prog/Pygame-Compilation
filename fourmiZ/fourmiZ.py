@@ -54,7 +54,7 @@ class Ant:
         self.pv = 100
 
         self.last_food = None
-        self.food = None
+        self.food = False
         self.queen = queen
 
         self.food_generators = food_generators
@@ -104,7 +104,7 @@ class Ant:
             s = s/abs(s)
             self.angle = -s*acos(c) / 2 / pi * 360
             if self.x > self.queen.x-5 and self.x < self.queen.x + 80 and self.y > self.queen.y-5 and self.y < self.queen.y + 80:
-                self.food = None
+                self.food = False
                 self.queen.create_larva()
         elif self.last_food:
             x_a = self.x - self.last_food[0]
@@ -188,30 +188,22 @@ class FoodGenerator:
 
     def give_me_food(self):
         if self.pv < 0:
-            return None
+            return False
         self.pv -= 1
         if self.etat < 4:
             self.etat += 1
-        return Food(self.x, self.y)
-
-class Food: # a quoi ca sert ??
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.catched = False
-
-    def affiche(self, fenetre):
-        fenetre.blit(FOOD[0], (self.x, self.y))
+        return True
 
 class Larva(Ant):
-    def __init__(self, num):
-        self.x = Queen.x + 5
-        self.y = Queen.y + 5
+    def __init__(self, num, queen):
+        self.x = queen.x + 5
+        self.y = queen.y + 5
         self.eclose = False
-        self.time_eclose = pygame.time.get_ticks + 10000
+        self.time_eclose = pygame.time.get_ticks() + 10000
         self.q = True
         self.changer = 0
         self.num = num
+        self.queen = queen
     def mouvement(self):
         if self.eclose:
             return
@@ -224,15 +216,14 @@ class Larva(Ant):
             self.q = True
             self.changer = pygame.time.get_ticks() + 1000
     def eclosion(self):
-        if pygame.time.get_ticks > self.time_eclose:
-            ants.append(Ant(self.x,self.y, fenetre.get_width(),fenetre.get_height(), len(self.ants), self, food_generators))
-            larva.pop(num)
+        if pygame.time.get_ticks() > self.time_eclose:
+            self.queen.create_ant(self.num)
             self.eclose = True
     def affiche(self, fenetre):
         fenetre.blit(LARVA, (self.x, self.y))
 
-class Queen(Larva):
-    def __init__(self, larva):
+class Queen(Ant):
+    def __init__(self, larva, ants):
         self.x, self.y = (randint(75,fenetre.get_width())-75), (randint(75,(fenetre.get_height())-75))
         self.angle = randint(0,360)
         self.imagequeen = QUEENANT
@@ -240,6 +231,7 @@ class Queen(Larva):
         self.changer = 0
         self.q = True
         self.larva = larva
+        self.ants = ants
 
     def mouvement(self):
         if self.killed:
@@ -269,7 +261,14 @@ class Queen(Larva):
         self.imagequeen = rotation_image.subsurface(rotation_rectangle).copy()
 
     def create_larva(self):
-        larva.append(Larva(len(self.larva)))
+        self.larva.append(Larva(len(self.larva), self))
+    def create_ant(self, larva_num):
+        l =  self.larva[larva_num]
+        self.larva.pop(larva_num)
+        for i in self.larva[larva_num:]:
+            i.num -= 1
+        x,y = l.x, l.y
+        self.ants.append(Ant(x,y, fenetre.get_width(),fenetre.get_height(), len(self.ants), self, food_generators))
 
 
 pygame.display.set_caption("Fourmiz")
@@ -279,7 +278,7 @@ ants = []
 deads = []
 food_generators = []
 larva = []
-queenant = Queen(larva)
+queenant = Queen(larva, ants)
 
 kill_all = False
 nb_add = 1
@@ -371,6 +370,10 @@ while jeu:
         a.mouvement()
         a.affiche(fenetre)
 
+    for l in larva:
+        l.eclosion()
+        l.affiche(fenetre)
+
     queenant.mouvement()
     queenant.affiche(fenetre)
 
@@ -381,8 +384,5 @@ while jeu:
 
     pygame.display.flip()
     pygame.time.Clock().tick(20)
-
-print(len(deads))
-print(len(ants))
 
 pygame.quit()
