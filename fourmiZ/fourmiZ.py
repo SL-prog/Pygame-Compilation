@@ -385,14 +385,14 @@ while jeu:
         else:
             f.affiche(fenetre)
 
-    for a in ants:
-        a.mouvement()
-        a.affiche(fenetre)
-
     for l in larva:
         l.mouvement()
         l.eclosion()
         l.affiche(fenetre)
+
+    for a in ants:
+        a.mouvement()
+        a.affiche(fenetre)
 
     queenant.mouvement()
     queenant.affiche(fenetre)
