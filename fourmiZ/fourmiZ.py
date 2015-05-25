@@ -105,7 +105,7 @@ class Ant:
             self.angle = -s*acos(c) / 2 / pi * 360
             if self.x > self.queen.x-5 and self.x < self.queen.x + 80 and self.y > self.queen.y-5 and self.y < self.queen.y + 80:
                 self.food = False
-                self.queen.create_larva()
+                self.queen.create_larva(fenetre)
         elif self.last_food:
             x_a = self.x - self.last_food[0]
             y_a = self.y - self.last_food[1]
@@ -195,12 +195,23 @@ class FoodGenerator:
         return True
 
 class Larva(Ant):
-    def __init__(self, num, queen):
-        self.x = queen.x + 5
-        self.y = queen.y + 5
+    def __init__(self, num, queen, fenetre):
+        self.x = queen.x + randint(-35, 70)
+        self.y = queen.y + randint(-35, 70)
+        self.screenx, self.screeny = fenetre.get_width(), fenetre.get_height()
+        if self.x<0:
+            self.x = 0
+        if self.x>self.screenx-35:
+            self.x = self.screenx-35
+        if self.y<0:
+            self.y = 0
+        if self.y>self.screeny-35:
+            self.y = self.screeny-35
         self.eclose = False
         self.time_eclose = pygame.time.get_ticks() + 10000
         self.q = True
+        self.angle = randint(0,360)
+        self.imagelarva = LARVA
         self.changer = 0
         self.num = num
         self.queen = queen
@@ -220,7 +231,15 @@ class Larva(Ant):
             self.queen.create_ant(self.num)
             self.eclose = True
     def affiche(self, fenetre):
-        fenetre.blit(LARVA, (self.x, self.y))
+        self.rotation()
+        fenetre.blit(self.imagelarva, (self.x, self.y))
+    def rotation(self):
+        self.imagelarva = LARVA
+        origine_rectangle = self.imagelarva.get_rect()
+        rotation_image = pygame.transform.rotate(self.imagelarva, self.angle)
+        rotation_rectangle = origine_rectangle.copy()
+        rotation_rectangle.center = rotation_image.get_rect().center
+        self.imagelarva = rotation_image.subsurface(rotation_rectangle).copy()
 
 class Queen(Ant):
     def __init__(self, larva, ants):
@@ -260,8 +279,8 @@ class Queen(Ant):
         rotation_rectangle.center = rotation_image.get_rect().center
         self.imagequeen = rotation_image.subsurface(rotation_rectangle).copy()
 
-    def create_larva(self):
-        self.larva.append(Larva(len(self.larva), self))
+    def create_larva(self, fenetre):
+        self.larva.append(Larva(len(self.larva), self, fenetre))
     def create_ant(self, larva_num):
         l =  self.larva[larva_num]
         self.larva.pop(larva_num)
@@ -298,10 +317,10 @@ while jeu:
                 jeu = False
             if event.key == K_RETURN:
                 ants = []
-                food = []
-                foodnombre = 0
+                food_generators = []
+                larva = []
                 pygame.draw.rect(bg, (255,255,255), (0,0,bg.get_width(),bg.get_height()), 0)
-                queenant = Queen(ants)
+                queenant = Queen(larva, ants)
             if event.key == K_r:
                 nb_add = 1000
                 cursor = CURSOR1000
@@ -371,6 +390,7 @@ while jeu:
         a.affiche(fenetre)
 
     for l in larva:
+        l.mouvement()
         l.eclosion()
         l.affiche(fenetre)
 
