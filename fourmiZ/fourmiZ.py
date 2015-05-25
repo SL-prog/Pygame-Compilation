@@ -1,16 +1,4 @@
-﻿#Projet : on place autant de fourmis qu'on veut. de meme pour la nourriture
-#les fourmis se deplacent de manière aléatoire
-#si une fourmis touche de la nourriture, cette derniere se porte jusqu'a sa bouche
-#si on a place la reine des fourmis sur l'ecran, la fourmis qui vient de recuperer
-#la nourriture fait un tour complet jusqu'a etre dans l'axe de la reine
-#et elle se dirige vers la reine pour lui porter la nourriture
-#si la nourriture arrive sur la reine, la nourriture disparait et une fourmis apparait
-#devant la reine
-
-#pour plus tard : on ne peut poser que des larves, qui vont evoluer en fourmis qu'au bout
-#d'un certain temps. La reine pourra pondre des larves.
-
-import pygame
+﻿import pygame
 from pygame.locals import *
 pygame.init()
 from random import randint
@@ -29,7 +17,12 @@ CURSOR1000 = pygame.image.load("cursor1000.png").convert_alpha()
 CURSORQUEEN = pygame.image.load("cursorqueen.png").convert_alpha()
 ANT = pygame.image.load("ant.png").convert_alpha()
 BLOOD = pygame.image.load('blood.png').convert_alpha()
-FOOD = pygame.image.load("food.png").convert_alpha() #cursor too
+FOOD1 = pygame.image.load("food1.png").convert_alpha() #cursor too
+FOOD2 = pygame.image.load("food2.png").convert_alpha()
+FOOD3 = pygame.image.load("food3.png").convert_alpha()
+FOOD4 = pygame.image.load("food4.png").convert_alpha()
+FOOD5 = pygame.image.load("food5.png").convert_alpha()
+FOOD = [FOOD1,FOOD2,FOOD3,FOOD4,FOOD5]
 QUEENANT = pygame.image.load("queenant.png").convert_alpha()
 LARVA = pygame.image.load("larva.png").convert_alpha()
 
@@ -109,10 +102,10 @@ class Ant:
             c = x_a/Na
             s = y_a
             s = s/abs(s)
-            self.angle = -s*acos(c) / 2 / pi * 360 
+            self.angle = -s*acos(c) / 2 / pi * 360
             if self.x > self.queen.x-5 and self.x < self.queen.x + 80 and self.y > self.queen.y-5 and self.y < self.queen.y + 80:
                 self.food = None
-                self.queen.create_ant()
+                self.queen.create_larva()
         elif self.last_food:
             x_a = self.x - self.last_food[0]
             y_a = self.y - self.last_food[1]
@@ -130,7 +123,7 @@ class Ant:
                 self.angle -= 5
                 self.q = True
                 self.changer = pygame.time.get_ticks() + 500
-    
+
                 if self.fin_timermoove == True:
                     self.angle = self.angle + randint(-45,45)
                     if self.angle < 0:
@@ -141,7 +134,7 @@ class Ant:
                     self.attendre = True
                     self.depart_timerwait = True
                     self.fin_timermoove = False
-    
+
                 if self.x<0:
                     self.x = 0
                     self.angle = 180
@@ -169,7 +162,6 @@ class Ant:
                     self.last_food = None
 
 
-
     def affiche(self, fenetre):
         if self.killed:
             fenetre.blit(BLOOD, (self.x-15, self.y-15))
@@ -189,34 +181,65 @@ class FoodGenerator:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.pv = 10
+        self.pv = 4
+        self.etat = 0
     def affiche(self, fenetre):
-        fenetre.blit(FOOD, (self.x, self.y))
+        fenetre.blit(FOOD[self.etat], (self.x, self.y))
+
     def give_me_food(self):
         if self.pv < 0:
             return None
         self.pv -= 1
+        if self.etat < 4:
+            self.etat += 1
         return Food(self.x, self.y)
 
-
-class Food:
+class Food: # a quoi ca sert ??
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.catched = False
 
     def affiche(self, fenetre):
-        fenetre.blit(FOOD, (self.x, self.y))
+        fenetre.blit(FOOD[0], (self.x, self.y))
 
-class Queen(Ant):
-    def __init__(self, ants):
+class Larva(Ant):
+    def __init__(self, num):
+        self.x = Queen.x + 5
+        self.y = Queen.y + 5
+        self.eclose = False
+        self.time_eclose = pygame.time.get_ticks + 10000
+        self.q = True
+        self.changer = 0
+        self.num = num
+    def mouvement(self):
+        if self.eclose:
+            return
+        if self.q and pygame.time.get_ticks()>self.changer:
+            self.angle += randint(0,20)
+            self.changer = pygame.time.get_ticks() + 1000
+            self.q = False
+        if not(self.q) and pygame.time.get_ticks()>self.changer:
+            self.angle -= randint(0,20)
+            self.q = True
+            self.changer = pygame.time.get_ticks() + 1000
+    def eclosion(self):
+        if pygame.time.get_ticks > self.time_eclose:
+            ants.append(Ant(self.x,self.y, fenetre.get_width(),fenetre.get_height(), len(self.ants), self, food_generators))
+            larva.pop(num)
+            self.eclose = True
+    def affiche(self, fenetre):
+        fenetre.blit(LARVA, (self.x, self.y))
+
+class Queen(Larva):
+    def __init__(self, larva):
         self.x, self.y = (randint(75,fenetre.get_width())-75), (randint(75,(fenetre.get_height())-75))
         self.angle = randint(0,360)
         self.imagequeen = QUEENANT
         self.killed = False
         self.changer = 0
         self.q = True
-        self.ants = ants
+        self.larva = larva
 
     def mouvement(self):
         if self.killed:
@@ -245,15 +268,8 @@ class Queen(Ant):
         rotation_rectangle.center = rotation_image.get_rect().center
         self.imagequeen = rotation_image.subsurface(rotation_rectangle).copy()
 
-    def create_ant(self):
-        ants.append(Ant(self.x,self.y, fenetre.get_width(),fenetre.get_height(), len(self.ants), self, food_generators))
-
-class Larva:
-    def __init__():
-        pass
-    def eclosion():
-        pass
-
+    def create_larva(self):
+        larva.append(Larva(len(self.larva)))
 
 
 pygame.display.set_caption("Fourmiz")
@@ -263,7 +279,7 @@ ants = []
 deads = []
 food_generators = []
 larva = []
-queenant = Queen(ants)
+queenant = Queen(larva)
 
 kill_all = False
 nb_add = 1
@@ -301,7 +317,7 @@ while jeu:
                 cursor = CURSOR1
             if event.key == K_t:
                 nb_add = 0
-                cursor = FOOD
+                cursor = FOOD1
             if event.key == K_y:
                 nb_add = -1
                 cursor = CURSORQUEEN
@@ -370,5 +386,3 @@ print(len(deads))
 print(len(ants))
 
 pygame.quit()
-
-
